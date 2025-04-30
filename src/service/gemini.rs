@@ -11,12 +11,11 @@ pub struct GeminiClient {
 
 impl GeminiClient {
     pub fn new(api_key: &str, model: &str) -> Result<Self> {
-        let endpoint = Url::parse("https://generativelanguage.googleapis.com")
-            .context("parse base url")?
-            .join(&format!("/v1beta/models/{model}:generateContent"))
-            .context("join model path")?
-            .join(&format!("?key={api_key}"))
-            .context("append api key")?;
+        let base = format!(
+            "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        );
+        let endpoint =
+            Url::parse_with_params(&base, &[("key", api_key)]).context("construct endpoint url")?;
 
         let client = Client::builder()
             .timeout(Duration::from_secs(20))
@@ -27,10 +26,12 @@ impl GeminiClient {
         Ok(Self { client, endpoint })
     }
 
-    pub async fn ask(&self, prompt: &str) -> Result<String> {
+    pub async fn ask<'a>(&self, contents: &'a [m::Content<'a>]) -> Result<String> {
         self.client
             .post(self.endpoint.clone())
-            .json(&m::GenerateReq::from(prompt))
+            .json(&m::GenerateReq {
+                contents: contents.to_vec(),
+            })
             .send()
             .await
             .context("POST gemini")?

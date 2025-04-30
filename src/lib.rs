@@ -3,6 +3,9 @@
 pub mod config;
 pub mod error;
 
+pub mod domain {
+    pub mod conversation;
+}
 pub mod model {
     pub mod gemini;
 }
@@ -14,4 +17,5 @@ pub mod service {
     pub mod youtube_chat;
 }
 
+pub use domain::conversation::{Message, Role};
 pub use service::gemini::GeminiClient; // 新しい短縮名が必要ならここで再公開

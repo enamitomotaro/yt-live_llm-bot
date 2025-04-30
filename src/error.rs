@@ -17,6 +17,9 @@ pub enum Error {
     // ────────────────────────────────────────
     #[error(transparent)]
     External(#[from] anyhow::Error),
+
+    #[error("missing environment variable: {0}")]
+    MissingEnvVar(String),
 }
 
 /// 薄い別名。Result<T> と書けて呼び出し側が楽になる

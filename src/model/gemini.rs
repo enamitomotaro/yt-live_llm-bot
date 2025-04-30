@@ -4,21 +4,23 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
 pub struct GenerateReq<'a> {
-    pub contents: [Content<'a>; 1],
+    pub contents: Vec<Content<'a>>,
 }
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Content<'a> {
-    pub parts: [Part<'a>; 1],
+    pub role: &'a str,
+    pub parts: Vec<Part<'a>>,
 }
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Part<'a> {
     pub text: &'a str,
 }
 impl<'a> From<&'a str> for GenerateReq<'a> {
     fn from(p: &'a str) -> Self {
         Self {
-            contents: [Content {
-                parts: [Part { text: p }],
+            contents: vec![Content {
+                role: "system",
+                parts: vec![Part { text: p }],
             }],
         }
     }
