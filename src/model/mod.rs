@@ -1,2 +1,3 @@
 pub mod conversation;
-pub mod gemini;
+pub mod emotion;
+pub mod gemini_dto;

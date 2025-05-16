@@ -1,15 +1,21 @@
 use ai_tuber::{
     config::Config,
     error::{Error, Result},
-    model::conversation::{Message, Role},
-    service::{audio, avatar, gemini::GeminiClient, prompt, tts, youtube},
+    model::{
+        conversation::{Message, Role},
+        emotion::Emotion,
+    },
+    service::{
+        api::{gemini_client::GeminiClient, youtube_chat},
+        media::{audio, avatar_osc, tts_voicevox},
+        prompt,
+    },
 };
+
 use regex::Regex;
 use tokio_stream::StreamExt;
 
 async fn parse_and_play(rep: &str, speaker: u16, tag_re: &Regex) -> Result<()> {
-    use avatar::{self, Emotion};
-
     let segments = tag_re
         .split(rep) // テキスト部分を列挙
         .zip(
@@ -31,8 +37,8 @@ async fn parse_and_play(rep: &str, speaker: u16, tag_re: &Regex) -> Result<()> {
             "surprised" => Emotion::Surprised,
             _ => Emotion::Neutral,
         };
-        avatar::set(emo)?;
-        let wav = tts::synth(text, speaker).await?;
+        avatar_osc::set(emo)?;
+        let wav = tts_voicevox::synth(text, speaker).await?;
         audio::play(&wav)?;
     }
     Ok(())
@@ -53,7 +59,7 @@ async fn main() -> Result<()> {
     tokio::spawn({
         let url = cfg.youtube_live_url.clone();
         async move {
-            if let Ok(stream) = youtube::subscribe(&url).await {
+            if let Ok(stream) = youtube_chat::subscribe(&url).await {
                 tokio::pin!(stream);
                 while let Some((_, msg)) = stream.next().await {
                     if !msg.starts_with('!') {

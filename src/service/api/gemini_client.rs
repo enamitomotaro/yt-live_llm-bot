@@ -1,6 +1,6 @@
 use crate::{
     error::{Error, Result},
-    model::gemini as m,
+    model::gemini_dto,
 };
 use anyhow::Context;
 use reqwest::{Client, Url};
@@ -29,10 +29,10 @@ impl GeminiClient {
         Ok(Self { client, endpoint })
     }
 
-    pub async fn ask<'a>(&self, contents: &'a [m::Content<'a>]) -> Result<String> {
+    pub async fn ask<'a>(&self, contents: &'a [gemini_dto::Content<'a>]) -> Result<String> {
         self.client
             .post(self.endpoint.clone())
-            .json(&m::GenerateReq {
+            .json(&gemini_dto::GenerateReq {
                 contents: contents.to_vec(),
             })
             .send()
@@ -40,7 +40,7 @@ impl GeminiClient {
             .context("POST gemini")?
             .error_for_status()
             .context("non-2xx")?
-            .json::<m::GenerateRes>()
+            .json::<gemini_dto::GenerateRes>()
             .await
             .context("parse json")
             .map(|r| r.first_text())
