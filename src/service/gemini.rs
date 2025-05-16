@@ -1,4 +1,7 @@
-use crate::{error::Result, model::gemini as m};
+use crate::{
+    error::{Error, Result},
+    model::gemini as m,
+};
 use anyhow::Context;
 use reqwest::{Client, Url};
 use std::time::Duration;
@@ -41,6 +44,6 @@ impl GeminiClient {
             .await
             .context("parse json")
             .map(|r| r.first_text())
-            .map_err(Into::into)
+            .map_err(Error::External)
     }
 }

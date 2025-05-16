@@ -15,7 +15,7 @@ fn handle() -> Result<OutputStreamHandle> {
             .output_devices()
             .context("list devices")?
             .find(|d| d.name().ok().filter(|n| n.contains("BlackHole")).is_some())
-            .ok_or(Error::BlackHoleNotFound)?;
+            .ok_or(Error::AudioDeviceNotFound)?;
         let (stream, h) = OutputStream::try_from_device(&dev).context("open BlackHole")?;
         *g = Some(h);
         std::mem::forget(stream);
