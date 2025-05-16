@@ -1,6 +1,6 @@
 use crate::{
     error::{Error, Result},
-    model::gemini_dto,
+    model::gemini_dto::{self, Content},
 };
 use anyhow::Context;
 use reqwest::{Client, Url};
@@ -29,7 +29,7 @@ impl GeminiClient {
         Ok(Self { client, endpoint })
     }
 
-    pub async fn ask<'a>(&self, contents: &'a [gemini_dto::Content<'a>]) -> Result<String> {
+    pub async fn ask<'a>(&self, contents: &'a [Content<'a>]) -> Result<String> {
         self.client
             .post(self.endpoint.clone())
             .json(&gemini_dto::GenerateReq {

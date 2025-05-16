@@ -5,13 +5,8 @@ use ai_tuber::{
         conversation::{Message, Role},
         emotion::Emotion,
     },
-    service::{
-        api::{gemini_client::GeminiClient, youtube_chat},
-        media::{audio, avatar_osc, tts_voicevox},
-        prompt,
-    },
+    service::{GeminiClient, audio, avatar_osc, prompt, tts_voicevox, youtube_chat},
 };
-
 use regex::Regex;
 use tokio_stream::StreamExt;
 
@@ -29,14 +24,7 @@ async fn parse_and_play(rep: &str, speaker: u16, tag_re: &Regex) -> Result<()> {
         );
 
     for (text, tag) in segments.filter(|(t, _)| !t.trim().is_empty()) {
-        let emo = match tag {
-            "happy" => Emotion::Happy,
-            "sad" => Emotion::Sad,
-            "angry" => Emotion::Angry,
-            "relaxed" => Emotion::Relaxed,
-            "surprised" => Emotion::Surprised,
-            _ => Emotion::Neutral,
-        };
+        let emo = tag.parse().unwrap_or(Emotion::Neutral);
         avatar_osc::set(emo)?;
         let wav = tts_voicevox::synth(text, speaker).await?;
         audio::play(&wav)?;

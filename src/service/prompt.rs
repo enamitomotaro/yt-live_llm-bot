@@ -14,11 +14,10 @@ pub fn build<'a>(
 
     // システム指示（ガイド追加済み）
     let sys = format!("{system_prompt}\n{EMOTION_GUIDE}");
+    let sys_text = Box::leak(sys.into_boxed_str());
     contents.push(gemini_dto::Content {
         role: "user",
-        parts: vec![gemini_dto::Part {
-            text: Box::leak(sys.into_boxed_str()),
-        }],
+        parts: vec![gemini_dto::Part { text: sys_text }],
     });
 
     // 履歴
